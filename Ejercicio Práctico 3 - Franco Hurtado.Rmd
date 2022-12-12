@@ -1,0 +1,126 @@
+---
+title: "Ejercicio práctico 3"
+author: "Franco Hurtado Aguilar"
+date: '2022-05-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rio)
+data = import("PERU2020.csv")
+#Configuración de variables
+data[,c(2,7:10,14,20)]=lapply(data[,c(2,7:10,14,20)],as.numeric)
+```
+
+Ejercicio 2. Queremos analizar la relación entre los ingresos percibidos ("ytot") y los ingresos del hogar ("ytotcorh"). 
+
+```{r}
+str(data$ytotcorh)
+str(data$ytot)
+sum(is.na(data$ytot))
+sum(is.na(data$ytotcorh))
+ejercicio2 = data[complete.cases(data$ytot),]
+sum(is.na(ejercicio2$ytot))
+sum(is.na(ejercicio2$ytotcorh))
+```
+Calcular la hipótesis de normalidad
+```{r}
+library(nortest)
+lillie.test(ejercicio2$ytotcorh)
+lillie.test(ejercicio2$ytot)
+```
+Se rechaza la H0 en ambas variables, lo que confirma que ninguna de ellas tiene normalidad y tendremos que usar el coeficiente de Spearman.
+
+```{r}
+cor.test(ejercicio2$ytotcorh,ejercicio2$ytot, method = c("spearman"))
+```
+Creamos además el gráfico.
+```{r}
+plot(ejercicio2$ytotcorh,ejercicio2$ytot)
+```
+Conclusión: Debido a que el p-value es inferior a 0.05, rechazamos la H0 y se determina que exista una correlación positiva entre los ingresos percibidos y los ingresos del hogar. Además, debido a que el coeficiente de Spearman es de 0.477, determinamos que el nivel de correlación es mediano, lo que se puede corroborar con el gráfico creado.
+
+
+
+Ejercicio 3. Queremos analizar la relación entre los ingresos percibidos ("ytot") y las horas mensuales de trabajo ("y2_hrs"). 
+
+```{r}
+str(data$y2_hrs)
+str(data$ytot)
+sum(is.na(data$ytot))
+sum(is.na(data$y2_hrs))
+ejercicio3=ejercicio2[complete.cases(ejercicio2$y2_hrs),]
+sum(is.na(ejercicio3$y2_hrs))
+sum(is.na(ejercicio3$ytot))
+```
+Se calcula la hipótesis de normalidad
+```{r}
+lillie.test(ejercicio3$y2_hrs)
+lillie.test(ejercicio3$ytot)
+```
+Al ser el p-value de ambas variables inferior a 0.05 rechazamos la H0 y se confirma que no tienen normalidad, se usa la prueba de Spearman. 
+
+```{r}
+cor.test(ejercicio3$y2_hrs,ejercicio3$ytot, method = c("spearman"))
+```
+Finalizamos con el gráfico
+```{r}
+plot(ejercicio3$y2_hrs,ejercicio3$ytot)
+```
+Conclusión: Se determina que existe correlación entre las horas mensuales de trabajo y los ingresos percibidos debido al p-value obtenido. Además, debido al valor del coeficiente obtenido determinamos que la correlación es positiva pero pequeña, lo que se evidencia en el gráfico, con una leve elevación en cuanto aumenta el valor de ambas variables.
+
+
+Ejercicio 4. Queremos analizar la relación entre los ingresos del hogar ("ytotcorh") y el número total de personas ("tot_per") 
+
+```{r}
+str(data$ytotcorh)
+str(data$tot_per)
+sum(is.na(data$ytotcorh))
+sum(is.na(data$tot_per))
+```
+Calculamos la normalidad
+```{r}
+lillie.test(data$ytotcorh)
+lillie.test(data$tot_per)
+```
+Al ser el p-value inferior a 0.05 rechazamos la H0, por lo que determinamos que no existe normalidad y corresponde la prueba de Spearman.
+
+```{r}
+cor.test(data$ytotcorh,data$tot_per, method = c("spearman"))
+```
+Se finaliza con el gráfico.
+```{r}
+plot(data$ytotcorh,data$tot_per)
+```
+Conclusión: Debido a que el p-value obtenido es inferior a 0.05, determinamos que sí existe correlación entre los ingresos del hogar y el número de personas, siendo esta positiva, por lo que a mayor número de personas se tiene mayores ingresos en el hogar, sin embargo, esta correlación es pequeña, ya que el coeficiente de Spearman se encuentra entre 0.1 y 0.3.
+
+
+Ejercicio 5. Queremos analizar la relación entre el número de personas que laboran en el hogar ("n_ocupados") y quienes no ("n_desocupados").
+
+```{r}
+str(data$n_ocupados)
+str(data$n_desocupados)
+sum(is.na(data$n_ocupados))
+sum(is.na(data$n_desocupados))
+```
+
+Se calcula la normalidad de las variables
+```{r}
+lillie.test(data$n_ocupados)
+lillie.test(data$n_desocupados)
+```
+Por lo que el p-value es menor a 0.05, se confirma que no hay normalidad en las variables y usamos la prueba de Spearman.
+
+```{r}
+cor.test(data$n_ocupados,data$n_desocupados, method = c("spearman"))
+```
+Complementamos con el gráfico.
+
+```{r}
+plot(data$n_ocupados,data$n_desocupados)
+```
+En conclusión, rechazamos la H0 y determinamos que existe una correlación entre las personas desocupadas y las ocupadas al obtener un p-value menor a 0.05. Gracias a que el coeficiente de Spearman es de -0,227 determinamos que la correlación es negativa, es decir que a más personas que trabajan en el hogar menos personas que no, aunque el nivel de correlación es pequeño, lo que se observa en el gráfico.

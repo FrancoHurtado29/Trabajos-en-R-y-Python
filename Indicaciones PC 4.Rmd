@@ -1,0 +1,163 @@
+---
+title: "PRÁCTICA CALIFICADA 4 - SOLUCIONARIO"
+author: 'Nombres y apellidos: Franco Felipe Hurtado Aguilar'
+date: '2022-06-18'
+output:
+  html_document: default
+  pdf_document: default
+subtitle: 'Código: 20200882'
+---
+
+## PARTE 2
+
+Para esta evaluación, vamos a trabajar con la base de datos de Esperanza de Vida, a cargo del Observatorio Global para la Salud de la OMS. Esta herramienta sirve como instrumento de monitoreo de la salud y elementos asociados en 193 países. Para consultar todos los detalles de la base de datos, ver: <https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who?resource=download>
+
+En esta oportunidad, vamos a trabajar con los datos del año 2014:
+
+```{r}
+library(rio)
+data = import("data_pc4.csv")
+```
+
+Tenemos interés en explicar la **esperanza de vida en años** para los 183 países del año 2015 en esta base de datos. En ese sentido, se le pide responder a las siguientes preguntas:
+
+### Pregunta 1 (3 puntos):
+
+Explore las correlaciones entre las variables "Life expectancy" (4), "Adult Mortality" (5), "percentage of expenditure" (8), "Schooling (22)" y "Alcohol (7)", y responda a las siguientes variables:
+
++ ¿Qué par de variables presentan la menor fuerza de correlación? Interprete la relación entre ambas en función a la fuerza y el sentido de la asociación y declare el coeficiente de correlación 
+
++ ¿Qué par de variables presentan la asociación más fuerte? Interprete la relación entre ambas en función a la fuerza y el sentido de la asociación y declare el coeficiente de correlación 
+
++ ¿Cuál es la variable que MENOS se encuentra correlacionada con la cantidad de consumo per capita de alcohol?
+
+```{r}
+str(data)
+data$AdultMortality=as.numeric(data$AdultMortality)
+str(data$AdultMortality)
+
+#ahora que todas las variables son numéricas calculamos las correlaciones con la prueba de Pearson.
+
+cor.test(data$LifeExpectancy,data$AdultMortality, method = c("pearson"))  #p-value<0.05 coef= -0.7770978
+cor.test(data$LifeExpectancy,data$percentageExpenditure, method = c("pearson"))  #p-value<0.05 coef= 0.4269845
+cor.test(data$LifeExpectancy,data$Schooling, method = c("pearson"))  #p-value<0.05 coef= 0.8154521
+cor.test(data$LifeExpectancy,data$Alcohol, method = c("pearson"))  #p-value<0.05 coef= 0.5290591
+cor.test(data$percentageExpenditure,data$AdultMortality, method = c("pearson"))  #p-value<0.05 coef= -0.2660009
+cor.test(data$Schooling,data$AdultMortality, method = c("pearson"))  #p-value<0.05 coef= -0.5933458
+cor.test(data$Alcohol,data$AdultMortality, method = c("pearson"))  #p-value<0.05 coef= -0.2748108
+cor.test(data$percentageExpenditure,data$Schooling, method = c("pearson"))  #p-value<0.05 coef= 0.4027346
+cor.test(data$percentageExpenditure,data$Alcohol, method = c("pearson"))  #p-value<0.05 coef= 0.4237875
+cor.test(data$Alcohol,data$Schooling, method = c("pearson")) #p-value<0.05 coef= 0.589161
+cor.test(data$AdultMortality,data$LifeExpectancy, method = c("pearson"))  #p-value<0.05 coef= -0.7770978
+cor.test(data$percentageExpenditure,data$LifeExpectancy, method = c("pearson"))  #p-value<0.05 coef= 0.4269845
+cor.test(data$Schooling,data$LifeExpectancy, method = c("pearson"))  #p-value<0.05 coef= 0.8154521
+cor.test(data$Alcohol,data$LifeExpectancy, method = c("pearson"))  #p-value<0.05 coef= 0.5290591
+cor.test(data$AdultMortality,data$percentageExpenditure, method = c("pearson"))  #p-value<0.05 coef= -0.2660009
+cor.test(data$AdultMortality,data$Schooling, method = c("pearson"))  #p-value<0.05 coef= -0.5933458
+cor.test(data$AdultMortality,data$Alcohol, method = c("pearson"))  #p-value<0.05 coef= -0.2748108
+cor.test(data$Schooling,data$percentageExpenditure, method = c("pearson"))  #p-value<0.05 coef= 0.4027346
+cor.test(data$Alcohol,data$percentageExpenditure, method = c("pearson"))  #p-value<0.05 coef= 0.4237875
+cor.test(data$Schooling,data$Alcohol, method = c("pearson"))  #p-value<0.05 coef= 0.589161
+```
+Pregunta a)
+El par de variables que tiene la menor fuerza de correlación es el par ("Percentage of expenditure"-"Adult mortality"), considerando que, a pesar de que su p-value es menor a 0.05, por lo que existe correlación, el coeficiente de Pearson obtenido es de -0.2660009, lo que nos permite afirmar que el sentido de la correlación es inverso, por lo que mientras aumenta la variable "Adult mortality", disminuye "Percentage of expenditure", siendo la fuerza de esta correlación pequeña.
+
+Pregunta b)
+El par de variables que tiene la mayor fuerza de correlación es el par ("Life expectancy"-"Schooling"), ya que, además de obtener un p-value menor a 0.05, confirmando la correlación, el coeficiente obtenido es de 0.8154521, lo que quiere decir que la correlación entre las variables es positiva, aumentando "Percentage of expenditure" cuando el aumenta el valor de "Schooling", además, el valor nos indica que la fuerza de la correlación es grande.
+
+Pregunta c)
+La variable que menos se encuentra correlacionada con la variable "Alcohol" es "Adult mortality", ya que, después de confirmar la correlación observando el p-value, se observa que el coeficiente de Pearson es de -0.2748108, lo que indica que cuando se presenta niveles más altos de "Adult mortality", se presentarán niveles más bajos de "Alcohol", ya que es una correlación inversa, pero pequeña, a comparación de la fuerza de correlación de la variable "Alcohol" con las demás variables.
+
+
+### Pregunta 2:
+
+Queremos encontrar las variables que tendrían la capacidad de explicar el nivel de esperanza de vida (Life Expectancy) de los países. Por ello, se le solicita lo siguiente (4 puntos):
+
++ Construya un modelo de regresión lineal simple, cuya variable independiente es el consumo per capita de alcohol del país (Alcohol). Interprete sus resultados (la validez del modelo, la interpretación del coeficiente, el nivel de explicación del modelo y brinde dos ejemplos de posibles valores esperados de Y)
+
+```{r}
+#Primero confirmamos la correlación
+cor.test(data$Alcohol,data$LifeExpectancy, method = c("pearson"))
+#Se confirma la correlación, obteniendo un p-value menor a 0.05. Ahora procedemos a validar el modelo con la tabla ANOVA
+modelo1 <- lm(LifeExpectancy~Alcohol, data=data)
+anova(modelo1)
+#Confirmamos que la variable Alcohol es significativa para el primer modelo, al obtener un p-value menor a 0.05.
+summary(modelo1)
+```
+Con los resultados obtenidos podemos determinar que existe una relación lineal significativa entre la variable independiente Alcohol y LifeExpectancy, obteniendo una ecuación de la siguiente forma: Y= 68.0537 + 1.1205(X), por lo que un aumento en la variable Alcohol aumentará el valor de la variable LifeExpectancy en 1.1205 veces la variable Alcohol. Asimismo, habiendo obtenido un R2 de 0.2751, podemos afirmar que el 27% de la variabilidad en la variable LifeExpectancy puede ser explicada por la variable Alcohol. Por ejemplo, si tenemos un valor de 5 para la variable alcohol, nos dará un valor esperado de Y de 73.6562, o también, con un valor de X de 12, podemos esperar un valor de Y de 81.4997.
+
+
++ Construya un modelo de regresión lineal simple, cuya variable independiente es el número de años de escolaridad en el país (Schooling). Interprete sus resultados (la validez del modelo, la interpretación del coeficiente, el nivel de explicación del modelo y brinde dos ejemplos de posibles valores esperados de Y)
+
+```{r}
+#Primero confirmamos la correlación
+cor.test(data$Schooling,data$LifeExpectancy, method = c("pearson"))
+#Se confirma la correlación, obteniendo un p-value menor a 0.05. Ahora procedemos a validar el modelo con la tabla ANOVA
+modelo2 <- lm(LifeExpectancy~Schooling, data=data)
+anova(modelo2)
+#Confirmamos que la variable Alcohol es significativa para el primer modelo, al obtener un p-value menor a 0.05.
+summary(modelo2)
+```
+Con estos resultados sobre el modelo 2 podemos afirmar que sí existe una relación lineal entre la variable LifeExpectancy y Schooling, y la ecuación tendría la siguiente forma: Y= 39.4882 + 2.4679(X), es decir, un aumento en la variable Schooling aumentará el valor de la variable LifeExpectancy en 2.4679 veces el valor de Schooling. Además, dado que el coeficiente R2 obtenido es de 0.6627, determinamos que el 66% de la variabilidad en la variable LifeExpectancy se puede explicar por la variable Schooling. Finalmente, podemos ejemplificar que, si el valor de Schooling fuese de 10, el valor esperado de Y sería de 64.1672, o, si fuese de 7,2, el valor esperado de LifeExpectancy sería de 57.25708.
+
+
++ Construya un modelo de regresión lineal simple, cuya variable independiente es % del presupuesto destinado al gasto en educación. Interprete sus resultados (la validez del modelo, la interpretación del coeficiente, el nivel de explicación del modelo y brinde dos ejemplos de posibles valores esperados de Y)
+
+```{r}
+#Primero confirmamos la correlación
+cor.test(data$percentageExpenditure,data$LifeExpectancy, method = c("pearson"))
+#Se confirma la correlación, obteniendo un p-value menor a 0.05. Ahora procedemos a validar el modelo con la tabla ANOVA
+modelo3 <- lm(LifeExpectancy~percentageExpenditure, data=data)
+anova(modelo3)
+#Confirmamos que la variable Alcohol es significativa para el primer modelo, al obtener un p-value menor a 0.05.
+summary(modelo3)
+```
+Con estos resultados podemos afirmar que existe una relación lineal entre "percentageExpenditure" y "LifeExpectancy", siendo la ecuación pertinente la siguiente: Y= 70.090022 + 0.001352(X), por lo tanto, un aumento en la variable "percentageExpenditure" aumentará el valor de "LifeExpectancy" en 0.001352 veces el valor de percentageExpenditure. Además, considerando que el coeficiente R2 obtenido es de 0.1769, afirmamos que solo el 17% de la variabilidad de la variable LifeExpectancy puede ser explicada por la variable percentageExpenditure. Para ejemplificar, si tenemos un valor de 7.5 para percentageExpenditure, podemos esperar que el valor de Y sea de 70.100162, o, si el valor de percentageExpenditure fuese de 20, el valor esperado de Y sería 70.117062.
+
+
++ ¿Qué modelo es el mejor? Compare en una table y justifique:
+
+```{r}
+library(stargazer)
+stargazer(modelo1,modelo2,modelo3, type ="text")
+```
+Si bien todas las variables tienen una relación lineal con la variable dependiente, podemos determinar que, aunque todos los modelos son válidos y significativos, el modelo 2 resulta mejor para estimarla, ya que el coeficiente R2 tiene un mayor valor, lo que indica que se puede estimar más porcentaje de variabilidad de la variable LifeExpectancy utilizando los valores de la variable Schooling.
+
+
+### Pregunta 3
+
+Con el objetivo de aproximarse más a la causalidad y acercarse a los determinantes de la esperanza de vida en los países, se le solicita lo siguiente (3 puntos):
+
++ Construya un modelo de regresión lineal múltiple que evalúe los impactos del consumo per capita de alcohol (Alcohol), los años de escolaridad (Schooling), el porcentaje del presupuesto nacional dirigido al sector salud (percentageExpenditure) y el producto bruto interno de los países (GDP). Todas las variables aquí mencionadas (Schooling, Alcohol, GDP y percentageExpenditure) deben ser incluidas en el modelo como variables independientes a la vez. Discuta los resultados y compárelos con los hallazgos identificados en los modelos lineales simples.
+
+
+Ya que en el anterior ejercicio realizamos los modelos lineales de las tres primeras variables, hace falta el de la variable GDP.
+```{r}
+#Primero confirmamos la correlación
+cor.test(data$GDP,data$LifeExpectancy, method = c("pearson"))
+#Se confirma la correlación, obteniendo un p-value menor a 0.05. Ahora procedemos a validar el modelo con la tabla ANOVA
+modelo4 <- lm(LifeExpectancy~GDP, data=data)
+anova(modelo4)
+#Confirmamos que la variable Alcohol es significativa para el primer modelo, al obtener un p-value menor a 0.05.
+summary(modelo4)
+```
+con los cuatro modelos lineales simples, podemos hacer un modelo lineal múltiple para la posterior comparación.
+
+```{r}
+stargazer(modelo1,modelo2,modelo3,modelo4, type ="text")
+```
+
+
+
+
+```{r}
+modelo5<-lm(LifeExpectancy~Alcohol+ Schooling + percentageExpenditure + GDP, data)
+summary(modelo5)
+```
+Con estos resultados, determinamos la relación lineal múltiple entre LifeExpectancy y las 4 variables propuestas. Debido a que nuestro estadístico F es menor a 0.05, podemos afirmar que el modelo es válido. Además, el valor general del coeficiente R2 aumentó considerablemente en comparación con el obtenido con las demás variables, excepto Schooling, por lo que podemos afirmar, en general, que este modelo resulta mejor para estimar la variabilidad de la variable LifeExpectancy. Asimismo, observamos cambios pariculares en cómo interactúan las variables independientes con la dependiente, ya que la variable percentageExpenditure influye de manera negativa aunque pequeña en LifeExpectancy, con un coeficiente de -4.256e-05, a diferencia de en el modelo lineal simple, donde influía de manera positiva, aunque también en poca medida. Para finalizar, podemos resaltar que la variable Schooling sigue siendo aquella que más influye de manera positiva sobre LifeExpectancy, tal como ocurría al comparar los modelos lineales simples.
+
+
+
+
+
+
